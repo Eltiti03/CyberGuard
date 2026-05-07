@@ -15,8 +15,9 @@ import FeaturedGrid from '../components/biblioteca/FeaturedGrid';
 import ArticlesList from '../components/biblioteca/ArticlesList';
 import QuizzesList from '../components/biblioteca/QuizzesList';
 import heroBiblioteca from '../assets/images/cyber-library.webp';
-import '../styles/biblioteca.css';
 import { apiFetch } from '../utils/api';
+import '../styles/biblioteca.css';
+
 
 // Estructura de cada categoría que se muestra en el sidebar.
 // El id debe coincidir con el campo r.tema de cada recurso
@@ -66,7 +67,7 @@ export default function Biblioteca() {
   // loading/error: controlan el estado de carga y errores
   const [recursos, setRecursos] = useState<Recurso[]>([]);
   const [temas, setTemas] = useState<TemaSidebar[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   // Estado de presentación
@@ -86,7 +87,7 @@ export default function Biblioteca() {
 
     const fetchCategorias = async () => {
       try {
-        const data = await apiFetch('/categoria/obtener/all/');
+        const data = await apiFetch('/categoria/obtener/all/', { cache: 'no-store' });
         const categorias = Array.isArray(data?.result) ? data.result : [];
 
         const categoriasMapeadas: TemaSidebar[] = categorias.map((categoria: any) => ({
@@ -122,7 +123,7 @@ export default function Biblioteca() {
 
     // Mapea cada cuestionario del API al tipo interno Recurso
     const fetchCuestionarios = () =>
-      apiFetch('/cuestionario/obtener/all/')
+      apiFetch('/cuestionario/obtener/all/', { cache: 'no-store' })
         .then((data: any) =>
           (Array.isArray(data?.result) ? data.result : []).map(
             (c: any): Recurso => ({
@@ -142,7 +143,10 @@ export default function Biblioteca() {
     // Si se pasa un tipo, se agrega como query param para filtrar en el servidor.
     const fetchRecursos = (tipo?: string) =>
       apiFetch(
-        `/categoria/recurso-edu/obtener/all/${tipo ? `?tipo_recurso=${encodeURIComponent(tipo)}` : ''}`
+        `/categoria/recurso-edu/obtener/all/${
+          tipo ? `?tipo_recurso=${encodeURIComponent(tipo)}` : ''
+        }`,
+        { cache: 'no-store' }
       )
         .then((data: any) =>
           (Array.isArray(data?.result) ? data.result : []).map(
@@ -344,6 +348,15 @@ export default function Biblioteca() {
     if (actual >= total - 2) return [total - 4, total - 3, total - 2, total - 1, total];
     return [actual - 2, actual - 1, actual, actual + 1, actual + 2];
   }, [paginaActual, totalPaginas]);
+  console.log(loading);
+
+    if (loading) {
+      return (
+        <div className="foro-loading">
+          <div className="biblioteca__loading">Cargando recursos…</div>
+        </div>
+      );
+    }
 
 
   // JSX
