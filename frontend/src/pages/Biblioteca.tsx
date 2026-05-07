@@ -220,29 +220,13 @@ export default function Biblioteca() {
   );
 
 
-  // ── CORRECCIÓN: solo mostrar categorías que tengan al menos 1 recurso ──
+  // Solo mostrar categorías que tengan al menos 1 recurso, sin duplicados
   const temasSidebar = useMemo(() => {
-    // Conjunto de temas que realmente tienen recursos cargados
     const temasConRecursos = new Set(recursos.map((r) => r.tema));
 
-    // Solo incluir categorías del API que tengan al menos 1 recurso
-    // Se compara tanto id como label porque el backend puede devolver
-    // el nombre como id en algunos casos
-    const base = temas.filter(
+    return temas.filter(
       (t) => temasConRecursos.has(t.id) || temasConRecursos.has(t.label)
     );
-
-    const existentes = new Set(base.map((t) => t.id));
-
-    // Agregar temas que vengan de recursos pero no estén en el catálogo del API
-    recursos.forEach((recurso) => {
-      if (!existentes.has(recurso.tema)) {
-        base.push({ id: recurso.tema, label: recurso.tema });
-        existentes.add(recurso.tema);
-      }
-    });
-
-    return base;
   }, [temas, recursos]);
 
 

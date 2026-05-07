@@ -97,8 +97,10 @@
 }
 
 .bib-sidebar__divider {
-  height: 1px;
-  background: var(--border-subtle);
+  display: block;
+  height: 0;
+  background: transparent;
+  border: none;
   margin: 14px 0;
 }
 
