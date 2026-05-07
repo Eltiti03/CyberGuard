@@ -16,7 +16,6 @@ import '../styles/biblioteca.css';
 import { apiFetch } from '../utils/api';
 
 
-
 type TemaSidebar = {
   id: string;
   label: string;
@@ -34,11 +33,9 @@ const normalizarTexto = (valor: string) =>
 const normalizarTipo = (tipo: string): TipoContenido => {
   const t = normalizarTexto(String(tipo ?? ''));
 
-
   if (t === 'articulo' || t === 'articulos') return 'articulo';
   if (t === 'guia' || t === 'guias') return 'guia';
   if (t === 'cuestionario' || t === 'cuestionarios') return 'cuestionario';
-
 
   return 'articulo';
 };
@@ -50,12 +47,10 @@ export default function Biblioteca() {
   const [busqueda, setBusqueda] = useState('');
   const [menuOpen, setMenuOpen] = useState(false);
 
-
   const [recursos, setRecursos] = useState<Recurso[]>([]);
   const [temas, setTemas] = useState<TemaSidebar[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
 
   const [vista, setVista] = useState<'grid' | 'list'>('grid');
   const [paginaActual, setPaginaActual] = useState(1);
@@ -65,23 +60,16 @@ export default function Biblioteca() {
   useEffect(() => {
     let cancelled = false;
 
-
     const fetchCategorias = async () => {
       try {
         const data = await apiFetch('/categoria/obtener/all/');
         const categorias = Array.isArray(data?.result) ? data.result : [];
 
-
+        // ── CORRECCIÓN: usar nombre como id para que coincida con r.tema ──
         const categoriasMapeadas: TemaSidebar[] = categorias.map((categoria: any) => ({
-          id: String(
-            categoria.categoria_id ??
-              categoria.id ??
-              categoria.nombre ??
-              crypto.randomUUID()
-          ),
+          id: String(categoria.nombre ?? categoria.categoria_id ?? crypto.randomUUID()),
           label: String(categoria.nombre ?? 'General'),
         }));
-
 
         if (!cancelled) {
           setTemas(categoriasMapeadas);
@@ -94,9 +82,7 @@ export default function Biblioteca() {
       }
     };
 
-
     fetchCategorias();
-
 
     return () => {
       cancelled = true;
@@ -107,10 +93,8 @@ export default function Biblioteca() {
   useEffect(() => {
     let cancelled = false;
 
-
     setLoading(true);
     setError(null);
-
 
     const fetchCuestionarios = () =>
       apiFetch('/cuestionario/obtener/all/')
@@ -129,7 +113,6 @@ export default function Biblioteca() {
             })
           )
         );
-
 
     const fetchRecursos = (tipo?: string) =>
       apiFetch(
@@ -161,9 +144,7 @@ export default function Biblioteca() {
           )
         );
 
-
     let promise: Promise<Recurso[]>;
-
 
     if (tipoActivo === 'all') {
       promise = Promise.all([fetchRecursos(), fetchCuestionarios()]).then(
@@ -174,7 +155,6 @@ export default function Biblioteca() {
     } else {
       promise = fetchRecursos(tipoActivo);
     }
-
 
     promise
       .then((data) => {
@@ -189,7 +169,6 @@ export default function Biblioteca() {
       .finally(() => {
         if (!cancelled) setLoading(false);
       });
-
 
     return () => {
       cancelled = true;
@@ -220,13 +199,10 @@ export default function Biblioteca() {
   );
 
 
-  // Solo mostrar categorías que tengan al menos 1 recurso, sin duplicados
+  // ── CORRECCIÓN: id === r.tema (nombre), comparación directa sin duplicados ──
   const temasSidebar = useMemo(() => {
     const temasConRecursos = new Set(recursos.map((r) => r.tema));
-
-    return temas.filter(
-      (t) => temasConRecursos.has(t.id) || temasConRecursos.has(t.label)
-    );
+    return temas.filter((t) => temasConRecursos.has(t.id));
   }, [temas, recursos]);
 
 
@@ -235,7 +211,6 @@ export default function Biblioteca() {
       if (tipoActivo !== 'all' && r.tipo !== tipoActivo) return false;
       if (temaActivo !== 'all' && r.tema !== temaActivo) return false;
 
-
       if (busqueda.trim()) {
         const q = busqueda.toLowerCase();
         return (
@@ -243,7 +218,6 @@ export default function Biblioteca() {
           r.descripcion.toLowerCase().includes(q)
         );
       }
-
 
       return true;
     });
@@ -301,12 +275,8 @@ export default function Biblioteca() {
       if (tipoActivo === 'cuestionario') {
         return <QuizzesList recursos={paginados} onLimpiar={limpiarFiltros} />;
       }
-
-
       return <ArticlesList recursos={paginados} onLimpiar={limpiarFiltros} />;
     }
-
-
     return <FeaturedGrid recursos={paginados} onLimpiar={limpiarFiltros} />;
   };
 
@@ -315,17 +285,14 @@ export default function Biblioteca() {
     const total = totalPaginas;
     const actual = paginaActual;
 
-
     if (total <= 5) {
       return Array.from({ length: total }, (_, i) => i + 1);
     }
-
 
     if (actual <= 3) return [1, 2, 3, 4, 5];
     if (actual >= total - 2) {
       return [total - 4, total - 3, total - 2, total - 1, total];
     }
-
 
     return [actual - 2, actual - 1, actual, actual + 1, actual + 2];
   }, [paginaActual, totalPaginas]);
@@ -338,7 +305,6 @@ export default function Biblioteca() {
         menuOpen={menuOpen}
       />
 
-
       {menuOpen && (
         <button
           type="button"
@@ -347,7 +313,6 @@ export default function Biblioteca() {
           onClick={() => setMenuOpen(false)}
         />
       )}
-
 
       <div className="biblioteca__body">
         <aside
@@ -367,7 +332,6 @@ export default function Biblioteca() {
             </button>
           </div>
 
-
           <BibSidebar
             tipos={TIPOS}
             temas={temasSidebar}
@@ -378,7 +342,6 @@ export default function Biblioteca() {
             onTemaChange={aplicarTema}
           />
         </aside>
-
 
         <main className="biblioteca__content">
           <div
@@ -393,12 +356,10 @@ export default function Biblioteca() {
                 <span>en el mundo digital</span>
               </h1>
 
-
               <p>
                 Artículos, guías y cuestionarios para fortalecer tu conocimiento
                 en ciberseguridad.
               </p>
-
 
               <div className="biblioteca__search">
                 <Search size={14} className="biblioteca__search-icon" />
@@ -414,14 +375,12 @@ export default function Biblioteca() {
             </div>
           </div>
 
-
           <div className="biblioteca__section">
             <div className="biblioteca__section-header">
               <div className="biblioteca__section-left">
                 <span className="biblioteca__section-label">{panelLabel}</span>
                 <h2 className="biblioteca__section-title">{panelLabel}</h2>
               </div>
-
 
               <div className="biblioteca__section-right">
                 {temaActivo !== 'all' && (
@@ -435,7 +394,6 @@ export default function Biblioteca() {
                   </button>
                 )}
 
-
                 <span className="biblioteca__result-count">
                   {loading
                     ? '…'
@@ -443,7 +401,6 @@ export default function Biblioteca() {
                 </span>
               </div>
             </div>
-
 
             {!loading && !error && (
               <div className="biblioteca__toolbar">
@@ -457,10 +414,8 @@ export default function Biblioteca() {
                     <span>Filtros</span>
                   </button>
 
-
                   <div className="biblioteca__rows-group">
                     <span className="biblioteca__rows-label">Mostrar</span>
-
 
                     <select
                       className="biblioteca__rows-select"
@@ -473,11 +428,9 @@ export default function Biblioteca() {
                       <option value={12}>12</option>
                     </select>
 
-
                     <span className="biblioteca__rows-suffix">por página</span>
                   </div>
                 </div>
-
 
                 <div className="biblioteca__toolbar-right">
                   <div className="biblioteca__view-switch">
@@ -491,7 +444,6 @@ export default function Biblioteca() {
                       <span>Cuadrícula</span>
                     </button>
 
-
                     <button
                       type="button"
                       className={`biblioteca__view-btn ${
@@ -503,12 +455,10 @@ export default function Biblioteca() {
                     </button>
                   </div>
 
-
                   <div className="biblioteca__desktop-pagination">
                     <span className="biblioteca__page-summary">
                       Página {paginaActual} de {totalPaginas}
                     </span>
-
 
                     <button
                       type="button"
@@ -518,7 +468,6 @@ export default function Biblioteca() {
                     >
                       ←
                     </button>
-
 
                     {numerosPagina.map((n) => (
                       <button
@@ -532,7 +481,6 @@ export default function Biblioteca() {
                         {n}
                       </button>
                     ))}
-
 
                     <button
                       type="button"
@@ -549,11 +497,9 @@ export default function Biblioteca() {
               </div>
             )}
 
-
             {loading && (
               <div className="biblioteca__loading">Cargando recursos…</div>
             )}
-
 
             {error && !loading && (
               <div className="biblioteca__error">
@@ -562,11 +508,9 @@ export default function Biblioteca() {
               </div>
             )}
 
-
             {!loading && !error && (
               <>
                 {renderContenido()}
-
 
                 {totalPaginas > 1 && (
                   <div className="biblioteca__mobile-pagination">
@@ -581,11 +525,9 @@ export default function Biblioteca() {
                       ← Anterior
                     </button>
 
-
                     <span className="biblioteca__mobile-page-indicator">
                       Página {paginaActual} de {totalPaginas}
                     </span>
-
 
                     <button
                       type="button"
@@ -602,7 +544,6 @@ export default function Biblioteca() {
               </>
             )}
           </div>
-
 
           <Footer />
         </main>
