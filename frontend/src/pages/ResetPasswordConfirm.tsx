@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import AuthForm from "../components/auth/AuthForm";
+import { API_BACKEND } from "../utils/api";
 
 
 // Página final del flujo de recuperación de contraseña.
@@ -22,7 +23,7 @@ const ResetPasswordConfirm: React.FC = () => {
     try {
       // Enviamos el email recuperado del state y la nueva contraseña al backend
       const response = await fetch(
-        "/usuario/cambiar-password/",
+        `${API_BACKEND}/usuario/cambiar-password/`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
