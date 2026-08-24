@@ -3,14 +3,9 @@ import { Link, useNavigate } from 'react-router-dom';
 import MDEditor from '@uiw/react-md-editor';
 import Navbar from '../components/common/Navbar';
 import Footer from '../components/common/Footer';
+import { useAuth } from '../context/AuthContext';
 import { API_BACKEND } from '../utils/api';
 import '../styles/Foro.css';
-
-interface Usuario {
-  id: string;
-  nombre: string;
-  email: string;
-}
 
 interface Comentario {
   comentario_id: string;
@@ -58,8 +53,7 @@ function tiempoRelativo(fecha: string): string {
 
 export default function Foro() {
   const navigate = useNavigate();
-  const [usuario,        setUsuario]        = useState<Usuario | null>(null);
-  const [verificando,    setVerificando]    = useState(true);
+  const { usuario, loading: verificando } = useAuth();
   const [publicaciones,  setPublicaciones]  = useState<Publicacion[]>([]);
   const [categorias,     setCategorias]     = useState<Categoria[]>([]);  // 👈 desde backend
   const [mostrarModal,   setMostrarModal]   = useState(false);
@@ -76,19 +70,12 @@ export default function Foro() {
   const [categoriaHilo,  setCategoriaHilo]  = useState('');
   const [etiquetasHilo,  setEtiquetasHilo]  = useState('');
 
-  // Verificar autenticación
+  // El estado de autenticación lo resuelve AuthProvider antes de decidir el acceso.
   useEffect(() => {
     window.scrollTo(0, 0);
-    fetch(`${API_BACKEND}/usuario/me/`)
-    .then(res => res.json())
-      .then(data => {
-        if (data.authenticated) setUsuario(data.usuario);
-      })
-      .catch(() => {})
-      .finally(() => setVerificando(false));
   }, []);
 
-  // Cargar categorías desde el backend  👈
+  // Cargar categorías desde el backend  
   useEffect(() => {
     fetch(`${API_BACKEND}/publicacion/categorias/`)
       .then(res => res.json())
