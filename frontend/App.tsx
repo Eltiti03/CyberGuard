@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useLocation, type Params } from 'react-router-dom';
 import LazyRoute from './src/routes/LazyRoute';
 import { lazyPage } from './src/routes/lazyPage';
 import BottomNav    from './src/components/common/BottomNav';
@@ -42,6 +42,9 @@ const AdminCuestionariosPage = lazyPage(() => import('./src/pages/admin/cuestion
 const SolicitudesPage = lazyPage(() => import('./src/pages/admin/solicitudes/SolicitudesPage'));
 const PublicacionesPage = lazyPage(() => import('./src/pages/admin/publicaciones/PublicacionesPage'));
 
+const preloadHiloRoute = ({ params }: { params: Readonly<Params<string>> }) =>
+  preloadHilo(params.id);
+
 
 // AppContent vive dentro de BrowserRouter para poder usar useLocation.
 // Esto es necesario porque useLocation requiere estar dentro del contexto
@@ -64,7 +67,7 @@ function AppContent() {
         <Route path="/amenazas"     element={<LazyRoute component={Amenazas} />} />
         <Route path="/herramientas" element={<LazyRoute component={Herramientas} />} />
         <Route path="/foro"         element={<LazyRoute component={Foro} preload={preloadForo} />} />
-        <Route path="/foro/:id"     element={<LazyRoute component={Hilo} preload={({ params }) => preloadHilo(params.id)} />} />
+        <Route path="/foro/:id"     element={<LazyRoute component={Hilo} preload={preloadHiloRoute} />} />
         <Route path="/biblioteca"                             element={<LazyRoute component={Biblioteca} preload={preloadBiblioteca} />} />
         <Route path="/biblioteca/articulo/:id"                element={<LazyRoute component={ArticuloPage} />} />
         <Route path="/biblioteca/guia/:id"                    element={<LazyRoute component={GuiaPage} preload={({ params }) => preloadGuia(params.id)} />} />
