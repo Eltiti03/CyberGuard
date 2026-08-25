@@ -12,7 +12,9 @@ interface Comentario {
   comentario_id: string;
   contenido: string;
   fecha_creacion: string;
-  usuario: { usuario_id: string; nombre?: string };
+  usuario?: { usuario_id: string; nombre?: string } | null;
+  usuario__usuario_id?: string;
+  usuario__nombre?: string;
 }
 
 interface Publicacion {
@@ -360,7 +362,7 @@ const eliminarHilo = async () => {
               <div key={com.comentario_id} className="comentario-card">
                 <div className="comentario-card__header">
                   <span className="material-symbols-outlined comentario-avatar">account_circle</span>
-                  <strong>{com.usuario?.nombre ?? 'Usuario'}</strong>
+                  <strong>{com.usuario?.nombre ?? com.usuario__nombre ?? 'Usuario'}</strong>
                   <span className="hilo-fecha">· {tiempoRelativo(com.fecha_creacion)}</span>
                 </div>
                 <p className="comentario-card__contenido">{com.contenido}</p>
