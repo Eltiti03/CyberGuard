@@ -4,14 +4,9 @@ import MDEditor from '@uiw/react-md-editor';
 import ReactMarkdown from 'react-markdown';
 import Navbar from '../components/common/Navbar';
 import Footer from '../components/common/Footer';
+import { useAuth } from '../context/AuthContext';
 import { apiFetch } from '../utils/api';
 import '../styles/Foro.css';
-
-interface Usuario {
-  id: string;
-  nombre: string;
-  email: string;
-}
 
 interface Comentario {
   comentario_id: string;
@@ -81,8 +76,7 @@ function tiempoRelativo(fecha: string): string {
 export default function Hilo() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [usuario, setUsuario] = useState<Usuario | null>(null);
-  const [verificando, setVerificando] = useState(true);
+  const { usuario, loading: verificando } = useAuth();
   const [publicacion, setPublicacion] = useState<Publicacion | null>(null);
   const [comentario, setComentario] = useState('');
   const [enviando, setEnviando] = useState(false);
@@ -97,14 +91,6 @@ export default function Hilo() {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    apiFetch('/usuario/me/')
-    .then(data => {
-      if (data.authenticated) {
-        setUsuario(data.usuario);
-      }
-    })
-    .catch(() => {})
-    .finally(() => setVerificando(false));
   }, []);
 
   useEffect(() => {
