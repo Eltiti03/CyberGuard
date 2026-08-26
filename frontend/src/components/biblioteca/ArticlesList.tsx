@@ -29,10 +29,16 @@ export default function ArticlesList({ recursos, onLimpiar }: Props) {
     return (
       <div className="bib-empty">
         <p className="bib-empty__title">Sin recursos para este filtro</p>
+
         <p className="bib-empty__desc">
           No hay contenido disponible con la combinación actual.
         </p>
-        <button className="bib-empty__btn" onClick={onLimpiar} type="button">
+
+        <button
+          className="bib-empty__btn"
+          onClick={onLimpiar}
+          type="button"
+        >
           Quitar filtro
         </button>
       </div>
@@ -43,6 +49,7 @@ export default function ArticlesList({ recursos, onLimpiar }: Props) {
     <div className="bib-list">
       {recursos.map((r) => {
         const esCuestionario = r.tipo === 'cuestionario';
+        const esGuia = r.tipo === 'guia';
 
         const rowContent = (
           <>
@@ -51,8 +58,12 @@ export default function ArticlesList({ recursos, onLimpiar }: Props) {
             </div>
 
             <div className="bib-row__body">
-              <div className="bib-row__label">{TIPO_LABEL[r.tipo] ?? r.tipo}</div>
+              <div className="bib-row__label">
+                {TIPO_LABEL[r.tipo] ?? r.tipo}
+              </div>
+
               <div className="bib-row__title">{r.titulo}</div>
+
               <div className="bib-row__desc">{r.descripcion}</div>
             </div>
 
@@ -79,17 +90,38 @@ export default function ArticlesList({ recursos, onLimpiar }: Props) {
           );
         }
 
+        if (esGuia) {
+          return (
+            <Link
+              key={r.id}
+              to={`/biblioteca/guia/${r.id}`}
+              className="bib-row"
+              style={{ textDecoration: 'none' }}
+            >
+              {rowContent}
+            </Link>
+          );
+        }
+
+        if (r.urlRecurso) {
+          return (
+            <a
+              key={r.id}
+              href={r.urlRecurso}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="bib-row"
+              style={{ textDecoration: 'none' }}
+            >
+              {rowContent}
+            </a>
+          );
+        }
+
         return (
-          <a
-            key={r.id}
-            href={r.urlRecurso ?? '#'}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="bib-row"
-            style={{ textDecoration: 'none' }}
-          >
+          <div key={r.id} className="bib-row">
             {rowContent}
-          </a>
+          </div>
         );
       })}
     </div>
